@@ -53,37 +53,86 @@ document.addEventListener('DOMContentLoaded', () => {
     // Create hearts periodically
     setInterval(createHeart, 450);
 
-    // 2. Audio Control
+    // 2. Audio Control with Playlist Logic
     const playBtn = document.getElementById('play-btn');
     const bgMusic = document.getElementById('bg-music');
     let isPlaying = false;
+    
+    const playlist = [
+        './Tothapi - Panata (Lyrics).mp3',
+        './Panaginip - nicole (Official Music Video).mp3'
+    ];
+    let currentTrackIndex = 0;
 
     // Set volume to be a bit softer
     bgMusic.volume = 0.5;
 
-    function toggleMusic() {
-        const albumArt = document.getElementById('album-art');
+    function updateTrackInfo() {
         const statusText = document.getElementById('music-status-text');
+        const albumArt = document.getElementById('album-art');
+        const panataArt = document.getElementById('panata-art');
+        const panataStatus = document.querySelector('#play-panata .track-status');
         
+        if (currentTrackIndex === 0) {
+            if (panataStatus) panataStatus.innerHTML = isPlaying ? 'Playing... <i class="fas fa-music"></i>' : 'Click to Play <i class="fas fa-play"></i>';
+            if (panataArt && isPlaying) panataArt.classList.add('playing');
+            else if (panataArt) panataArt.classList.remove('playing');
+            
+            if (statusText) statusText.innerHTML = 'Next: Panaginip <i class="fas fa-forward" style="font-size: 0.8rem; margin-left: 5px;"></i>';
+            if (albumArt) albumArt.classList.remove('playing');
+        } else {
+            if (panataStatus) panataStatus.innerHTML = 'Played <i class="fas fa-check"></i>';
+            if (panataArt) panataArt.classList.remove('playing');
+            
+            if (statusText) statusText.innerHTML = isPlaying ? 'Playing... <i class="fas fa-music" style="font-size: 0.8rem; margin-left: 5px;"></i>' : 'Click to Play <i class="fas fa-play" style="font-size: 0.8rem; margin-left: 5px;"></i>';
+            if (albumArt && isPlaying) albumArt.classList.add('playing');
+            else if (albumArt) albumArt.classList.remove('playing');
+        }
+    }
+
+    function playTrack(index) {
+        currentTrackIndex = index;
+        bgMusic.src = playlist[currentTrackIndex];
+        bgMusic.play().then(() => {
+            isPlaying = true;
+            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            updateTrackInfo();
+        }).catch(e => console.error("Audio playback failed:", e));
+    }
+
+    function toggleMusic() {
         if (isPlaying) {
             bgMusic.pause();
             playBtn.innerHTML = '<i class="fas fa-play"></i>';
-            if (albumArt) albumArt.classList.remove('playing');
-            if (statusText) statusText.innerHTML = 'Click to Play <i class="fas fa-play" style="font-size: 0.8rem; margin-left: 5px;"></i>';
+            isPlaying = false;
         } else {
-            bgMusic.play().catch(e => console.error("Audio playback failed:", e));
-            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-            if (albumArt) albumArt.classList.add('playing');
-            if (statusText) statusText.innerHTML = 'Playing... <i class="fas fa-music" style="font-size: 0.8rem; margin-left: 5px;"></i>';
+            bgMusic.play().then(() => {
+                isPlaying = true;
+                playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            }).catch(e => {
+                console.error("Audio playback failed, attempting first track:", e);
+                playTrack(0);
+            });
         }
-        isPlaying = !isPlaying;
+        updateTrackInfo();
     }
+
+    // Handle track ended -> play next
+    bgMusic.addEventListener('ended', () => {
+        currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
+        playTrack(currentTrackIndex);
+    });
 
     playBtn.addEventListener('click', toggleMusic);
 
+    const playPanata = document.getElementById('play-panata');
+    if (playPanata) {
+        playPanata.addEventListener('click', () => playTrack(0));
+    }
+
     const playPanaginip = document.getElementById('play-panaginip');
     if (playPanaginip) {
-        playPanaginip.addEventListener('click', toggleMusic);
+        playPanaginip.addEventListener('click', () => playTrack(1));
     }
 
     // 3. Scroll Intersection Observer for Smooth Fade-in Effects
