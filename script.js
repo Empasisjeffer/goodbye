@@ -70,14 +70,20 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateTrackInfo() {
         const statusText = document.getElementById('music-status-text');
         const albumArt = document.getElementById('album-art');
+        const panataArt = document.getElementById('panata-art');
         const panataStatus = document.querySelector('#play-panata .track-status');
         
         if (currentTrackIndex === 0) {
             if (panataStatus) panataStatus.innerHTML = isPlaying ? 'Playing... <i class="fas fa-music"></i>' : 'Click to Play <i class="fas fa-play"></i>';
+            if (panataArt && isPlaying) panataArt.classList.add('playing');
+            else if (panataArt) panataArt.classList.remove('playing');
+            
             if (statusText) statusText.innerHTML = 'Next: Panaginip <i class="fas fa-forward" style="font-size: 0.8rem; margin-left: 5px;"></i>';
             if (albumArt) albumArt.classList.remove('playing');
         } else {
             if (panataStatus) panataStatus.innerHTML = 'Played <i class="fas fa-check"></i>';
+            if (panataArt) panataArt.classList.remove('playing');
+            
             if (statusText) statusText.innerHTML = isPlaying ? 'Playing... <i class="fas fa-music" style="font-size: 0.8rem; margin-left: 5px;"></i>' : 'Click to Play <i class="fas fa-play" style="font-size: 0.8rem; margin-left: 5px;"></i>';
             if (albumArt && isPlaying) albumArt.classList.add('playing');
             else if (albumArt) albumArt.classList.remove('playing');
