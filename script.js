@@ -154,4 +154,19 @@ document.addEventListener('DOMContentLoaded', () => {
             appContent.scrollTo(0, 0);
         });
     });
+
+    // 6. Days Since Goodbye Countdown Logic
+    function updateCountdown() {
+        const goodbyeDate = new Date('2026-04-25T00:00:00'); // The date you said goodbye
+        const now = new Date();
+        const diffTime = Math.abs(now - goodbyeDate);
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        
+        const daysElement = document.getElementById('days-count');
+        if (daysElement) {
+            daysElement.innerText = diffDays;
+        }
+    }
+
+    updateCountdown();
 });
